@@ -232,15 +232,19 @@ export default {
     setWallet: function(name, price) {
       let walletString = '';
       const newPrice = parseFloat(price).toFixed(2);
-      if(this.wallet[name]){
-        this.wallet[name] = newPrice;
+      if(price > 0) {
+        if (this.wallet[name]) {
+          this.wallet[name] = newPrice;
+        } else {
+          this.$set(this.wallet, name, newPrice);
+        }
+        for (const key in this.wallet) {
+          walletString += key + ':' + this.wallet[key] + '|';
+        }
+        localStorage.setItem('wallet', walletString);
       } else {
-        this.$set(this.wallet, name , newPrice);
+        this.$delete(this.wallet, name)
       }
-      for (const key in this.wallet) {
-        walletString += key + ':' + this.wallet[key] + '|';
-      }
-      localStorage.setItem('wallet', walletString);
     },
     Transaction: function () {
       if (this.inputValue) {
