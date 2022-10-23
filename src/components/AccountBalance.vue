@@ -3,7 +3,7 @@ export default {
   name: "AccountBalance",
   props: {
     wallet: {
-      type: Array,
+      type: Object,
       required: true
     }
   }

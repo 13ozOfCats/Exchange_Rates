@@ -1,21 +1,9 @@
-<template lang="html">
-  <div class="rates">
-    <div class="subtitle">
-      Валюта:
-    </div>
-    <select name="ratesSelect" class="rates__select" v-model="current">
-      <option v-for="(value, key) in rates" :key="key" :value="key">
-        {{ value.Name }} ({{ key }})
-      </option>
-    </select>
-  </div>
-</template>
 <script lang="js">
 export default {
   props: {
     'rates': {
-    type: Object,
-    required: true
+      type: Object,
+      required: true
     },
   },
   data() {
@@ -24,21 +12,34 @@ export default {
     }
   },
   watch: {
-    current : function (val) {
+    current: function (val) {
       this.$emit('newRate', val);
     }
   }
 };
 </script>
+
+<template>
+  <div class="rates-select">
+    <div class="subtitle">
+      Валюта:
+    </div>
+    <select name="ratesSelect" class="rates-select__select" v-model="current">
+      <option v-for="(value, key) in rates" :key="key" :value="key">
+        {{ value.Name }} ({{ key }})
+      </option>
+    </select>
+  </div>
+</template>
+
 <style scoped lang="scss">
-.rates {
+.rates-select {
   &__select {
     padding: 0 16px;
     width: 100%;
     margin-top: 8px;
     background: #ffffff;
     border: 1px solid #d8d8d8;
-    font-family: PT Sans, sans-serif;
     font-style: normal;
     font-weight: bold;
     font-size: 16px;

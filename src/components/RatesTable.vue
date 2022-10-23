@@ -7,7 +7,7 @@ export default {
       required: true
     },
     currencies: {
-      type: Array,
+      type: Object,
       required: true
     }
   },
