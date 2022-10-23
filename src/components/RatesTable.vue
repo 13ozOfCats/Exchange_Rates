@@ -12,23 +12,17 @@ export default {
     }
   },
   methods: {
-    getDifference: function(now, prev) {
-      const difference = (now - prev).toFixed(2);
-      if (difference > 0) {
-        return "+" + difference;
-      } else {
-        return difference;
-      }
+    getDifference(now, prev) {
+      const difference = now - prev;
+      return (difference > 0 ? "+" : "") + difference.toFixed(2);
     },
-    getColor: function(now, prev) {
+    getColor(now, prev) {
       const difference = (now - prev).toFixed(2);
-      let color;
+      let color = "#000000";
       if (difference > 0) {
         color = "#00b956";
       } else if (difference < 0) {
         color = "#f62434";
-      } else if (difference === 0) {
-        color = "#000000";
       }
       return color;
     }
@@ -39,9 +33,9 @@ export default {
 <template>
   <div class="rates-table">
     <div class="title">Курс валют на {{ date }}</div>
-    <table class="table rates-table__course-table">
-      <thead class="table__thead">
-        <tr class="table__row">
+    <table class="rates-table__course-table">
+      <thead>
+        <tr>
           <td>
             Код
           </td>
@@ -53,16 +47,15 @@ export default {
           </td>
         </tr>
       </thead>
-      <tbody class="table__tbody">
-        <tr v-for="(val, name) in currencies" :key="name" class="table__row">
-          <td class="table__name">
+      <tbody>
+        <tr v-for="(val, name) in currencies" :key="name">
+          <td>
             {{ name }}
           </td>
-          <td class="table__num">
+          <td>
             {{ val.Nominal }}
           </td>
           <td
-            class="table__cost"
             :style="{
               color: getColor(val.Value, val.Previous)
             }"
