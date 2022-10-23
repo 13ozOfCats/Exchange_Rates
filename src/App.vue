@@ -40,7 +40,7 @@ body {
   color: rgba(51, 51, 51, 0.5);
 }
 
-.table {
+table {
   font-family: PT Sans, sans-serif;
   font-style: normal;
   font-weight: normal;
@@ -48,36 +48,20 @@ body {
   line-height: 16px;
   margin-top: 16px;
   width: 100%;
+}
 
-  &__row {
-    height: 32px;
-    width: 100%;
-  }
+thead {
+  color: rgba(51, 51, 51, 0.5);
+  box-shadow: 0 1px 0 #d8d8d8;
+}
 
-  &__val {
-    text-align: right;
-  }
+tbody {
+  text-transform: uppercase;
+  color: #000000;
+}
 
-  &__name {
-    width: 20%;
-  }
-
-  &__num {
-    width: 40%;
-  }
-
-  &__cost {
-    width: 40%;
-  }
-
-  &__thead {
-    color: rgba(51, 51, 51, 0.5);
-    box-shadow: 0 1px 0 #d8d8d8;
-  }
-
-  &__tbody {
-    text-transform: uppercase;
-    color: #000000;
-  }
+tr {
+  height: 32px;
+  width: 100%;
 }
 </style>
