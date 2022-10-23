@@ -15,13 +15,13 @@ export default {
     <div class="title">
       Баланс
     </div>
-    <table class="table">
-      <tbody class="table__tbody">
-        <tr v-for="(value, key) in wallet" :key="key" class="table__row">
-          <td class="table__rate">
+    <table>
+      <tbody>
+        <tr v-for="(value, key) in wallet" :key="key">
+          <td>
             {{ key }}
           </td>
-          <td class="table__val">
+          <td>
             {{ value }}
           </td>
         </tr>
