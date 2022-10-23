@@ -14,58 +14,55 @@ export default {
   data() {
     return {
       currencies: null,
-      date: null,
       wallet: {},
+      date: null,
       loading: true
     };
   },
-  mounted() {
-    axios
+  async mounted() {
+    await axios
       .get("https://www.cbr-xml-daily.ru/daily_json.js")
       .then(response => {
-        this.getData(response.data);
-      })
-      .catch(err => {
-        console.log(err);
+        if (response.data) {
+          const res = response.data;
+          const date = res.Date.split("T")[0].split("-");
+          this.date = date[2] + "." + date[1] + "." + date[0];
+          this.currencies = res.Valute;
+        }
       })
       .finally(() => (this.loading = false));
     this.getWallet();
   },
   methods: {
-    getData: function(res) {
-      const date = res.Date.split("T")[0].split("-");
-      this.date = date[2] + "." + date[1] + "." + date[0];
-      this.currencies = res.Valute;
-    },
-    getWallet: function() {
+    getWallet() {
       const wallet = localStorage.getItem("wallet");
       if (wallet) {
         wallet.split("|").forEach(pair => {
           if (pair) {
             const vals = pair.split(":");
-            this.$set(this.wallet, vals[0], vals[1]);
+            this.$set(this.wallet, vals[0], Number(vals[1]));
           }
         });
       } else {
         this.setWallet("RUR", 10000);
       }
     },
-    setWallet: function(name, price) {
-      let walletString = "";
-      const newPrice = parseFloat(price).toFixed(2);
-      if (price > 0) {
-        if (this.wallet[name]) {
-          this.wallet[name] = newPrice;
+    setWallet(newVal) {
+      const newPrice = newVal.value;
+      if (newVal.value) {
+        if (this.wallet[newVal.name]) {
+          this.wallet[newVal.name] = newPrice;
         } else {
-          this.$set(this.wallet, name, newPrice);
+          this.$set(this.wallet, newVal.name, newPrice);
         }
-        for (const key in this.wallet) {
-          walletString += key + ":" + this.wallet[key] + "|";
-        }
-        localStorage.setItem("wallet", walletString);
       } else {
-        this.$delete(this.wallet, name);
+        this.$delete(this.wallet, newVal.name);
       }
+      let walletString = "";
+      for (const key in this.wallet) {
+        walletString += key + ":" + this.wallet[key] + "|";
+      }
+      localStorage.setItem("wallet", walletString);
     }
   }
 };
@@ -77,6 +74,7 @@ export default {
       <ExchangeMenu
         :currencies="currencies"
         :wallet="wallet"
+        @update="setWallet"
         class="exchange-rates__block"
       />
       <RatesTable
