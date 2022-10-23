@@ -22,7 +22,7 @@ export default {
             {{ key }}
           </td>
           <td>
-            {{ value }}
+            {{ value.toFixed(2) }}
           </td>
         </tr>
       </tbody>

@@ -18,18 +18,16 @@ export default {
   },
   data() {
     return {
-      mode: "buy",
+      buyMode: true,
       inputValue: null,
       rate: null
     };
   },
   computed: {
     nominal() {
-      if (this.currencies !== null && this.rate !== null) {
-        return this.currencies[this.rate].Nominal;
-      } else {
-        return 1;
-      }
+      return this.currencies !== null && this.rate !== null
+        ? this.currencies[this.rate].Nominal
+        : 1;
     },
     debit() {
       let response = 0;
@@ -37,42 +35,30 @@ export default {
         const currentVal = this.currencies[this.rate];
         response = (currentVal.Value * this.inputValue) / currentVal.Nominal;
       }
-      return parseFloat(response).toFixed(2);
+      return response;
     },
-    btn() {
-      if (this.mode === "buy") {
-        return "Купить";
-      } else if (this.mode === "sell") {
-        return "Продать";
-      } else {
-        return "";
-      }
+    btnText() {
+      return this.buyMode ? "Купить" : "Продать";
     },
     sumText() {
-      if (this.mode === "buy") {
-        return "Заплачу:";
-      } else if (this.mode === "sell") {
-        return "Получу:";
-      } else {
-        return "";
-      }
+      return this.buyMode ? "Заплачу:" : "Получу:";
     },
-    availible() {
+    available() {
       let inWallet = 0;
       if (this.currencies !== null && this.rate !== null) {
         const currentVal = this.currencies[this.rate];
-        let canGet =
+        const canGet =
           Math.floor(this.wallet["RUR"] / currentVal.Value) *
           currentVal.Nominal;
-        if (this.mode === "buy") {
+        if (this.buyMode) {
           inWallet = canGet;
-        } else if (this.mode === "sell") {
+        } else {
           if (this.wallet[this.rate]) {
             inWallet = this.wallet[this.rate];
           }
         }
       }
-      return parseFloat(inWallet).toFixed(2);
+      return inWallet;
     }
   },
   methods: {
@@ -81,21 +67,17 @@ export default {
     },
     transaction() {
       if (this.inputValue) {
-        let newVal;
-        let newRur;
-        const balance = parseFloat(
-          this.wallet[this.rate] ? this.wallet[this.rate] : 0
-        );
-        const wallet = parseFloat(this.wallet["RUR"]);
-        const debit = parseFloat(this.debit);
-        if (this.mode === "buy") {
-          if (wallet >= debit) {
+        let newVal, newRur;
+        const balance = this.wallet[this.rate] ? this.wallet[this.rate] : 0;
+        const walletRur = this.wallet["RUR"];
+        if (this.buyMode) {
+          if (walletRur >= this.debit) {
             if (this.inputValue % this.nominal === 0) {
               newVal = balance + this.inputValue;
-              newRur = wallet - debit;
+              newRur = walletRur - this.debit;
             } else {
               alert(
-                "Эта валюьа продается по " +
+                "Эта валюта продается по " +
                   this.nominal +
                   " единиц. Введите число, кратное " +
                   this.nominal
@@ -103,14 +85,14 @@ export default {
               return false;
             }
           } else {
-            alert("Не дочточно денег на счету");
+            alert("Не досточно денег на счету");
             return false;
           }
-        } else if (this.mode === "sell") {
+        } else {
           if (balance >= this.inputValue) {
             if (this.inputValue % this.nominal === 0) {
               newVal = balance - this.inputValue;
-              newRur = wallet + debit;
+              newRur = walletRur + this.debit;
             } else {
               alert(
                 "Эта валюта продается по " +
@@ -125,8 +107,14 @@ export default {
             return false;
           }
         }
-        this.setWallet(this.rate, newVal);
-        this.setWallet("RUR", newRur);
+        this.$emit("update", {
+          name: this.rate,
+          value: newVal
+        });
+        this.$emit("update", {
+          name: "RUR",
+          value: newRur
+        });
       } else {
         alert("Введите количество");
       }
@@ -137,74 +125,73 @@ export default {
 
 <template>
   <div v-if="currencies">
-    <RatesSelect :rates="currencies" @newRate="newRate"></RatesSelect>
-    <div class="controlls__block">
+    <RatesSelect :rates="currencies" @newRate="newRate" />
+    <div class="controls__block">
       <div class="subtitle">
         Доступно:
       </div>
-      <div class="controlls__shrink">
-        <span class="title"> {{ availible }} {{ rate }}</span>
+      <div class="controls__shrink">
+        <span class="title"> {{ available.toFixed(2) }} {{ rate }}</span>
       </div>
     </div>
-    <div class="controlls__block">
+    <div class="controls__block">
       <div class="subtitle">
         Хочу:
       </div>
-      <div class="controlls__checkboxes">
-        <label class="controlls__label">
+      <div class="controls__checkboxes">
+        <label class="controls__label">
           <input
-            class="controlls__checkbox"
+            class="controls__checkbox"
             type="radio"
-            value="buy"
-            name="controll"
-            checked="checked"
-            v-model="mode"
+            name="control"
+            :value="true"
+            v-model="buyMode"
           />
           <span>Купить</span>
         </label>
-        <label class="controlls__label">
+        <label class="controls__label">
           <input
-            class="controlls__checkbox"
+            class="controls__checkbox"
             type="radio"
-            value="sell"
-            name="controll"
-            v-model="mode"
+            name="control"
+            :value="false"
+            v-model="buyMode"
           />
           <span>Продать</span>
         </label>
       </div>
-      <div class="controlls__shrink">
+      <div class="controls__shrink">
         <label>
           <input
             type="number"
-            class="controlls__input"
+            class="controls__input"
             placeholder="0.00"
             v-model.number="inputValue"
             :min="nominal"
-            :max="availible"
+            :max="available"
             :step="nominal"
           />
         </label>
       </div>
     </div>
-    <div class="controlls__block">
+    <div class="controls__block">
       <div class="subtitle">
         {{ sumText }}
       </div>
-      <div class="controlls__shrink">
-        <span class="title">{{ debit }} ₽</span>
+      <div class="controls__shrink">
+        <span class="title">{{ debit.toFixed(2) }} ₽</span>
       </div>
     </div>
-    <div v-if="mode && rate" class="controlls__block">
-      <button class="controlls__btn" @click="transaction">
-        {{ btn }}
+    <div v-if="rate" class="controls__block">
+      <button class="controls__btn" @click="transaction">
+        {{ btnText }}
       </button>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.controlls {
+.controls {
   &__label {
     flex-basis: 50%;
     width: 50%;
