@@ -44,7 +44,7 @@ export default {
           }
         });
       } else {
-        this.setWallet("RUR", 10000);
+        this.setWallet({ name: "RUR", value: 10000 });
       }
     },
     setWallet(newVal) {
